@@ -1,0 +1,142 @@
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+// TODO # 0: 
+#include "Grafo.h"
+// -------------------------------------------------------------------------
+struct Punto
+{
+  float X, Y;
+  float distanciaA( const Punto& b ) const
+    {
+      float x = X - b.X;
+      float y = Y - b.Y;
+      return( std::sqrt( ( x * x ) + ( y * y ) ) );
+    }
+};
+
+// TODO # 1: 
+typedef std::vector< float > TGrafo;
+typedef std::vector< unsigned long > TRuta;
+typedef std::vector< TRuta > TCaminos;
+typedef std::vector< float > TDist;
+
+
+int main( int argc, char* argv[] )
+{
+  if( argc < 2 )
+  {
+    std::cerr << "Uso: " << argv[ 0 ] << "nombre archivo " << std::endl;
+    return( 1 );
+
+  }
+  // TODO # 2: 
+  TGrafo g;
+  std::ifstream archivo( argv[ 1 ] );
+  if( !archivo )
+  {
+    std::cerr << "No se pudo abrir el archivo " << argv[ 1 ] << std::endl;
+    return( 1 );
+  }
+  g.resize( 100 );
+  unsigned long i = 0;
+  while( archivo >> g[ i ] )
+  {
+    ++i;
+  }
+  archivo.close();
+  g.resize( i );
+  // TODO # 3: Imprimir el grafo en pantalla
+  std::cout << "Grafo:" << std::endl;
+  for( unsigned long i = 0; i < g.size(); ++i )
+  {
+    std::cout << g[ i ] << " ";
+  }
+  std::cout << std::endl;
+  std::ifstream in_mesh_stream( argv[ 1 ], std::ifstream::binary );
+  if( !in_mesh_stream )
+  {
+    std::cerr << "Error leyendo \"" << argv[ 1 ] << "\"" << std::endl;
+    return( 1 );
+
+  }
+  in_mesh_stream.seekg( 0, in_mesh_stream.end );
+  unsigned long in_mesh_file_length = in_mesh_stream.tellg( );
+  in_mesh_stream.seekg( 0, in_mesh_stream.beg );
+  char* in_mesh_file_buffer = new char[ in_mesh_file_length ];
+  in_mesh_stream.read( in_mesh_file_buffer, in_mesh_file_length );
+  in_mesh_stream.close( );
+  std::istringstream in_mesh( in_mesh_file_buffer );
+
+  long nPoints;
+  in_mesh >> nPoints;
+  for( long pId = 0; pId < nPoints; pId++ )
+  {
+    Punto pnt;
+    in_mesh >> pnt.X >> pnt.Y;
+
+    // TODO # 3: Insertar el Punto en el grafo
+    g.push_back( pnt.X );
+    g.push_back( pnt.Y );
+  }
+
+  long nEdges;
+  in_mesh >> nEdges;
+  for( long eId = 0; eId < nEdges; eId++ )
+  {
+    long start, end;
+    in_mesh >> start >> end;
+
+   // TODO # 4: 
+    float cost = g[ 2 * start ] * g[ 2 * start + 1 ] + g[ 2 * end ] * g[ 2 * end + 1 ];
+    g.push_back( start );
+    g.push_back( end );
+    g.push_back( cost );
+
+  }
+  delete [] in_mesh_file_buffer;
+  //obtener el vertice de la posicion 0 y 1
+  // Calcular la distancia entre el vertice 0 y el vertice 1
+  //Calcular distancias lineales (distancia Euclidiana) entre los vertices 0 y 1
+  float distancia = g[ 2 * 0 ] * g[ 2 * 0 + 1 ] + g[ 2 * 1 ] * g[ 2 * 1 + 1 ];
+
+
+  //TODO # 6: 
+  // TODO # 7: Imprimir el informe de Prim
+  std::cout << "Distancia entre los vertices 0 y 1: " << distancia << std::endl;
+  std::cout << "Caminos de costo minimo entre los vertices 0 y 1: " << std::endl;
+  for( unsigned long i = 0; i < g.size( ) / 3; i++ )
+  {
+    std::cout << "Camino " << i << ": ";
+    for( unsigned long j = 0; j < g.size( ) / 3; j++ )
+    {
+      if( g[ 3 * i ] == g[ 3 * j ] && g[ 3 * i + 1 ] == g[ 3 * j + 1 ] )
+      {
+        std::cout << j << " ";
+      }
+    }
+    std::cout << std::endl;
+  }
+
+  //TODO # 8: Imprimir el informe de Dijkstra (mismo fomato que informe de Prim)
+  std::cout << "Distancia entre los vertices 0 y 1: " << distancia << std::endl;
+  std::cout << "Caminos de costo minimo entre los vertices 0 y 1: " << std::endl;
+  for( unsigned long i = 0; i < g.size( ) / 3; i++ )
+  {
+    std::cout << "Camino " << i << ": ";
+    for( unsigned long j = 0; j < g.size( ) / 3; j++ )
+    {
+      if( g[ 3 * i ] == g[ 3 * j ] && g[ 3 * i + 1 ] == g[ 3 * j + 1 ] )
+      {
+        std::cout << j << " ";
+      }
+    }
+    std::cout << std::endl;
+  }
+
+}
+
+
